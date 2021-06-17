@@ -5,8 +5,9 @@
    * -------------------------------------------------------------------------
    */
 }
+import { StatusBar } from 'expo-status-bar'
 import React, { useState, useEffect } from 'react'
-import { 
+import {
   View,
   Modal,
   Text,
@@ -14,9 +15,10 @@ import {
   SafeAreaView,
   Dimensions,
   TouchableOpacity,
-  Plateform,
+  TouchableWithoutFeedback,
   Platform,
-  Linking
+  Linking,
+  FlatList
 } from 'react-native'
 
 {
@@ -129,7 +131,7 @@ function Home() {
     },
   ]);
   const [dimensions, setDimensions] = useState({ window, screen })
-
+  const [statusMenu, setStatusMenu] = useState(false)
   
   {
     /**
@@ -154,6 +156,10 @@ function Home() {
   }
   const changeOrientation = ({ window, screen }) => {
     setDimensions({ window, screen })
+  }
+
+  const toggleMenuHandler = () => {
+    setStatusMenu( currentStatusMenu => !currentStatusMenu )
   }
 
   {
@@ -219,7 +225,107 @@ function Home() {
 
         </Modal> {/* /end Modal de présentation */}
 
+        {
+          /**
+           * -------------------------------------------------------------------
+           * LOGO
+           * TouchableWithoutFeedback me permet de cliquer sur le logo et
+           * d'afficher dans la console, un message.
+           * -------------------------------------------------------------------
+           */
+        }
+        <TouchableWithoutFeedback
+          onPress = { () => console.log("Futur retour sur la page d'accueil..")}
+        >
+          <View>
+            <Logo 
+              source = { require("../../assets/images/splash.png") } 
+              logoWidth = { 0.23 }
+              logoHeight = { 0.23 }
+            />
+          </View>
+        </TouchableWithoutFeedback>
+
+        {
+          /**
+           * -------------------------------------------------------------------
+           * TITRE
+           * -------------------------------------------------------------------
+           */
+        }
+        <Text style = {{ 
+          ...styles.h1,
+          fontSize: dimensions.window.width * 0.055
+        }} >
+          Starbuks
+        </Text>
       
+        {
+          /**
+           * -------------------------------------------------------------------
+           * STATUS DU MENU
+           * Selon le status du menu, un message est affiché à l'écran.
+           * -------------------------------------------------------------------
+           */
+        }
+        <Text style = {{ ...styles.p, ...styles.strong }}>
+          {
+            statusMenu
+              ? "Sélectionner une boisson pour émoustiller vos papilles"
+              : "Vous avez une petite soif !?"
+          }
+        </Text>
+
+        {
+          /**
+           * -------------------------------------------------------------------
+           * Liste des Produits
+           * Ici, il est question d'utiliser le composant product
+           * -------------------------------------------------------------------
+           */
+        }
+        {
+          menuStarbucks && (
+            <FlatList
+              data = { products }
+              keyExtractor = { element.productID }
+              renderItem = { item => (
+                <Product
+                  coffeeName = { item }
+                  id = { item.productID }
+                />
+              )}
+            />
+          )
+        }
+
+        {
+          /**
+           * -------------------------------------------------------------------
+           * BUTTON POUR LE MENU
+           * -------------------------------------------------------------------
+           */
+        }
+        <TouchableOpacity
+          style = {{
+            backgroundColor: { green },
+            padding: 15,
+            marginTop: 20,
+            marginBottom: 60,
+            borderRadius: 3
+          }}
+          activeOpacity = { 0.8 }
+          onPress = { toggleMenuHandler }
+        >
+          <Text style = {{ color: { white } }}>
+            {
+              !menuStarbucks
+                ? "Découvrez nos superbes boissons"
+                : "Cachez nos boissons..."
+            }
+          </Text>
+        </TouchableOpacity>
+
         {
           /**
            * -------------------------------------------------------------------
@@ -258,6 +364,8 @@ function Home() {
         </View>
 
       </View> {/* /end View.container */}
+
+      <StatusBar style="auto" />
     </SafeAreaView>
   )
 }
@@ -300,7 +408,9 @@ const styles = StyleSheet.create({
     color: { white },
   },
   h1: {
-
+    fontFamily: 'Montserrat-Black',
+    textTransform: "uppercase",
+    color: { green }
   },
   h2: {
 
@@ -310,6 +420,7 @@ const styles = StyleSheet.create({
   },
   p: {
     fontFamily: "Lato-Black",
+    margin: 20,
     padding: 20,
     marginVertical: 5,
   },
@@ -318,6 +429,12 @@ const styles = StyleSheet.create({
   },
   em: {
     fontStyle: "italic"
+  },
+  ul: {
+    backgroundColor: { green },
+    padding: 25,
+    marginTop: 25,
+    width: "100%"
   }
 
 })
